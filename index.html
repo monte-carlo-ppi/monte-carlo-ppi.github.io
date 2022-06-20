@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+  <meta name="author" content="Anonymous">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Inferring Smooth Control</title>
+  <link rel="stylesheet" href="./files/main.css">
+  <link rel="stylesheet" href="./files/font.css">
+
+  <style>
+
+    ol {
+      /*display: inline-block;*/
+      color: #FF217D;
+      border:  1px solid #FF217D;
+      /*padding-right:  0px;*/
+      /*padding-left:  20px;*/
+      border-radius: 5px;
+      padding: 5px 0px 0px 25px;
+      margin: 0px;
+      width: 25em;
+      /*height: 5em;*/
+    }
+
+    body {
+        color: #0000FF;
+        font-family: "HKGrotesk";
+        /*font-size: 1.5em;*/
+        height:  0.1;
+        letter-spacing: normal;
+        text-transform: none;
+        text-shadow: none;
+        word-wrap: break-word;
+        text-align: right;
+    }
+
+    h1, h2 {
+        font-family: "HKGrotesk";
+        font-size: 1em;
+        height:  0.1;
+        letter-spacing: normal;
+        text-transform: none;
+        text-shadow: none;
+        word-wrap: break-word;
+        text-align: left;
+    }
+    h2 {
+        color: #FF217D;
+    }
+
+    h1 {
+        color: #0000FF;
+        font-size: 1.2em;
+    }
+    p, tr, th {
+    font-family: "Dante", "Recession TwentySeventeen", "Palatino Linotype", "Book Antiqua", Palatino, FreeSerif, serif;
+    color: #000000;
+    text-align: left;
+    font-style: regular;
+    font-weight: normal;
+    font-size: 1.1em; 
+    }
+
+    * {padding:0;margin:0;box-sizing:border-box;}
+    #video {
+      position: relative;
+      padding-bottom: 45%; /* 16:9 */
+      height: 0;
+    }
+    #video iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 80%;
+      height: 100%;
+      transform: translateX(12.5%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: inherit;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .link {
+      /*color: #0066CC;*/
+      color: #bb2222;
+      /*color: #882222;*/
+      text-decoration: none;
+    }
+    .link:hover {
+      text-decoration: underline;
+    }
+    .nounderline:hover {
+      text-decoration: none;
+    }
+
+    .link2 {
+      color: #0055AA;
+      /*color: #882222;*/
+      /*color: #882222;*/
+      text-decoration: none;
+    }
+    .link2:hover {
+      text-decoration: underline;
+    }
+
+    .center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      width: 50%;
+}
+
+  </style>
+
+  <style type="text/css">/**
+     * Style sheet used by new LibX tooltip code
+     */
+
+    /* We insert a <div> with libx-tooltip style under the body.
+     * This will inherit body's style - we can't afford to inherit undesirable 
+     * styles and we must redefine what we need.  OTOH, some things, e.g.
+     * font-size, might be ok to be inherited to stay within the page's tone.
+     */
+    .libx-tooltip {
+        display: none;
+        overflow: visible;
+        padding: 5px;
+        z-index: 100;
+        background-color: #eee;
+        color: #000;
+        font-weight: normal;
+        font-style: normal;
+        text-align: left;
+        border: 2px solid #666;
+        border-radius: 5px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+    }
+
+    .libx-tooltip p {
+        /* override default 1em margin to keep paragraphs inside a tooltip closer together. */
+        margin: .2em;
+    }
+    </style><style type="text/css">/**
+     * Style sheet used by LibX autolinking code
+     */
+    .libx-autolink {
+    }
+
+  </style>
+
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-chtml-full.min.js">
+  </script>
+
+</head>
+
+<!-- <script src="js/mobile.js"></script> -->
+
+  <body>
+
+    <div class="outercontainer">
+      <div class="container" style="width: 90%;">
+
+        <div class="content project_title">
+          <br>
+          <h1 style="text-align: center; line-height: 1em; font-size: 2em">
+            Inferring Smooth Control:<br>
+            Monte Carlo Posterior Policy Iteration with Gaussian Processes
+          </h1>
+          <div>
+          </div>
+          <p style="text-align: center; color: #FF217D; font-size: 1.2em;">CoRL 2022 Submission</p>
+        </div>
+        <p>
+          Monte Carlo methods are popular for Robot Learning control problems, as they allow us to optimize non-differentiable, non-convex problems and scale to high-dimensional spaces. For settings such as open-loop control and tracking tasks, they have been adopted for reforcement learning and model predictive control (MPC).
+          This work takes the inference perspective to optimize smooth control priors in a principled fashion, by taking the approximate inference error into account during optimization.
+        </p>
+        <br>
+        <ol class ="toc-list" style="margin-top: -1em">
+          <li>
+          <a href='#monte-carlo-ppi'> Monte Carlo posterior policy iteration</a>
+          </li>
+          <li>
+          <a href='#gp-priors'> Gaussian process priors</a>
+          </li>
+          <li>
+          <a href='#ps'> Policy search results</a>
+          </li>
+          <li>
+          <a href='#mpc'> Model predictive control results</a>
+          </li>
+        </ol>
+        <br>
+        <div class="content" style="width: 100%">
+          <div class="title" id='monte-carlo-ppi'><h1>Monte Carlo Posterior Policy Iteration </h1></div>
+          <table border=0>
+            <tr valign=middle>
+              <td>
+                This work concerns posterior policy iteration in the episodic control setting.
+                Given state action trajectories \(\mathbf{S} = \{\mathbf{s}_1, \mathbf{s}_2, \dots\}\), \(\mathbf{A} = \{\mathbf{a}_1,\mathbf{a}_2, \dots\}\), the policy is updated using the episodic return
+                \(R=\sum_t r(\mathbf{s}_t,\mathbf{a}_t)\),
+
+                $$q_\alpha(\mathbf{A}|\mathbf{S}) \propto \exp(\alpha \textstyle\sum_t r(\mathbf{s}_t,\mathbf{a}_t))\,p(\mathbf{A}|\mathbf{S}).$$
+
+                This optimization is repeated by setting \(p(\mathbf{A}|\mathbf{S}) = q_\alpha(\mathbf{A}|\mathbf{S})\), so it requires either conjugate updates or a form of variational inference, such as expectation maximization (EM).  
+                
+                An important aspect to these methods is the inverse temperature \(\alpha \in \mathbb{R}_+\). 
+                Within the possible range of values for \(\alpha\), \(q_\alpha\) can vary between the prior \(p\) to potentially a delta function on a mode of the reward.
+                Considering a Gaussian prior \(p(x)\) and quadratic reward \(R(x)\), the posterior \(q_\alpha(x)\) can be computed in a conjugate fashion, as shown below and in Example 1 of the paper.   
+              </td>
+              </tr>
+              <tr valign=middle>
+              <td style="text-align: center;">
+                <!-- Linear Gaussian gif -->
+                <img  id="gaussian_ppi" src="figs/gaussian_ppi_smaller.gif" alt="Gaussian PPI">
+              </td>
+              </tr>
+              <tr valign=middle>
+              <td>
+                In the non-conjugate setting, many methods perform a <i>stochastic approximate</i> EM scheme, with an importances weighted posterior using samples from the prior, and moment matching the weighted samples to update the prior for the next EM iteration, 
+                </td>
+                <tr valign=middle>
+                <td style="text-align: center;">
+                  <!-- Linear Gaussian gif -->
+                  <img  id="iw_ppi" src="figs/iw_ppi_smaller.gif" alt="Gaussian PPI">
+                </td>
+                </tr>
+                <tr valign=middle>
+                <td>
+                To set \(\alpha\) appropriately in the Monte Carlo setting, balancing greediness and uncertainty, we propose optimizing a lower bound on the expected return of the posterior \(q_\alpha\) based on the importance sampled estimate using the prior, \(\mathbb{E}_{q_\alpha/p}[R]\),
+                <!-- $$\mathbb{E}_{q_\alpha}[R] = \mathbb{E}_{q_\alpha/p}[R]- ||R||_\infty$$ -->
+                $$\max_\alpha \mathbb{E}_{q_\alpha/p}[R] - ||R||_\infty\sqrt{\frac{1-\delta}{\delta}\frac{1}{\hat{N}_\alpha}},$$
+                where \(1-\delta \) is the probability of the concentration inequality and \(\hat{N}_\alpha\) is the effective sample size (ESS), computed from the importance weights.  
+                Lowering the probability of the bound increase the greediness of the optimization.
+                </td>
+                <tr valign=middle>
+                <td style="text-align: center;">
+                  <!-- Linear Gaussian gif -->
+                  <img  id="lbps_ppi" src="figs/lbps_nonlinear_ppi_smaller.png" alt="LBPS PPI">
+                </td>
+                </tr>
+                <tr valign=middle>
+                <td>
+                We refer to this method as <i>lower-bound policy search</i> (LBPS).
+                <br>
+                While LBPS using the ESS as a penalty term, we can also specify a desired ESS \(\hat{N}^*\). This resembles the number of elites used in the cross-entropy methods (CEM), although the importance weights are more conservative.  
+                We refer to this method as <i>effective sample size policy search</i> (ESSPS).
+                </td>
+                <tr valign=middle>
+                <td style="text-align: center;">
+                  <!-- Linear Gaussian gif -->
+                  <img  id="iw_ppi" src="figs/ess_cem_nonlinear_ppi_smaller.png" alt="ESSPS PPI">
+                </td>
+                </tr>
+                <tr valign=middle>
+                <td>
+                By ensuring a suitable ESS during optimization, we are able to work with richer priors for control that capture the correlations between actions, without over- or underfitting during optimization. 
+                <br><br>
+                <div class="title" id='gp-priors'>
+                <h1>Gaussian Process Policies </h1>
+                </div>
+                <!-- <tr> align=middle> -->
+                <!-- <td> -->
+                
+                For control, naive action sequence priors such as independent Gaussian noise return rough actions sequences for robot control, when we desire some degree of smoothness for safety and effective exploration. 
+                For smooth actions, we can use a Gaussian process (GP) to model open-loop actions \(\mathbf{A}\sim\mathcal{GP}(\mathbf{\mu},\mathbf{\Sigma})\) using a smooth kernel like the squared exponential (SE). The paper describes how we can use an online version of PPI for MPC by updating the action sequence for a new time window given the prior's kernel.
+                The figure below animates Figure 2 of the paper, showing a time window shift of a trajectory optimized between \([t_1, t_2]\) to being sampled between \([t_3, t_4]\) by using Equation 6.
+                
+                <!-- Kernel time window gif -->
+                </td>
+                <tr valign=middle>
+                <td style="text-align: center;">
+                  <img  id="se_time_shift" src="figs/se_policy_timeshift_smaller.gif" alt="se_shift">
+                </td>
+                </tr>
+                <tr valign=middle>
+                <td>
+                Contrast with an independent Gaussian noise prior, which does not incorporate smoothness and performs unstructured exploration. 
+                </td>
+                <tr valign=middle>
+                <td style="text-align: center;">
+                  <img  id="wn_time_shift" src="figs/wn_policy_timeshift_smaller.gif" alt="se_shift">
+                </td>
+                </tr>
+                <tr valign=middle>
+                <td>
+                <!-- <p>
+                As the GP is defined in continuous time, you can also increase the time resolution, if performing multi-timescale planning.
+                </p>
+                </td>
+                <tr valign=middle>
+                <td style="text-align: center;"
+                  <img  id="time_resoltuion" src="figs/policy_time_resolution_smaller.gif" alt="resolution">
+                </td>
+                </tr>
+                <tr valign=middle>
+                <td> -->
+                
+                For long time sequences, we motivate features approximations to sparsify the GP.
+                Finite features can lower the dimensionality of the problem, but approximate the nonparametric GP, e.g. the zero mean prior and stationarity. 
+                For the SE kernel, using the canonical radial basis function (RBF) features closely matches the probabilistic movement primitive used in policy search, 
+                 
+                <!-- Features approximation png -->
+                </td>
+                <tr valign=middle>
+                <td style="text-align: center;">
+                  <img  id="_rbf_time_shift" src="figs/rbf_policy_timeshift_smaller.gif" alt="rff_shift">
+                </td>
+                </tr>
+                <tr valign=middle>
+                <td>
+                
+                  We also motivate quadrature random Fourier features (RFF) as a spectral approximation to the SE kernel.  
+                
+                </tr>
+                </td>
+                <tr valign=middle>
+                <td style="text-align: center;">
+                <img  id="rff_time_shift" src="figs/rff_policy_timeshift_smaller.gif" alt="rff_shift">
+                </td>
+                </tr>
+                <tr valign=middle>
+                <td> 
+                
+                With these richer Gaussian processes priors, we can perform smooth control using Monte Carlo PPI for reinforcement learning and MPC.
+                             
+                </td>
+                </tr>
+          </table>
+
+        <div class="content" align="left" style="width: 100%;">
+        <div>
+        </div>
+        <div class="content" style="width: 100%; margin-top: 2em;">
+          <div class="title" id='ps'><h1>Policy Search Results</h1></div>
+          <h2>Episodic Relative Entropy Policy Search</h2>
+          <table width="100%">
+          <tr>
+          <th>Quadrature Random Fourier Features</th>  
+          <th>Radial Basis Function Features</th>
+          </tr>
+          <th>
+          <video width="450" controls>
+          <source src="results/policy_search/reps/rff/ball-in-cup_40_0.mp4" type="video/mp4">
+          </video>
+          </th>
+          <th>
+          <video width="450" controls>
+          <source src="results/policy_search/reps/rbf/ball-in-cup_40_0.mp4" type="video/mp4">
+          </video>
+          </th>
+          </tr>
+        </table width="100%">
+        <!--  -->
+        <h2>Lower Bound Policy Search</h2>
+        <table width="100%">
+          <tr>
+          <th>Quadrature Random Fourier Features</th>  
+          <th>Radial Basis Function Features</th>
+          </tr>
+          <th>
+          <video width="450" controls>
+          <source src="results/policy_search/lbps/rff/ball-in-cup_40_0.mp4" type="video/mp4">
+          </video>
+          </th>
+          <th>
+          <video width="450" controls>
+          <source src="results/policy_search/lbps/rbf/ball-in-cup_40_0.mp4" type="video/mp4">
+          </video>
+          </th>
+          </tr>
+        </table>
+        <h2>Effective Sample Size Policy Search</h2>
+        <table width="100%">
+          <tr>
+          <th>Quadrature Random Fourier Features</th>  
+          <th>Radial Basis Function Features</th>
+          </tr>
+          <th>
+          <video width="450" controls>
+          <source src="results/policy_search/lbps/rff/ball-in-cup_40_0.mp4" type="video/mp4">
+          </video>
+          </th>
+          <th>
+          <video width="450" controls>
+          <source src="results/policy_search/lbps/rbf/ball-in-cup_40_0.mp4" type="video/mp4">
+          </video>
+          </th>
+          </tr>
+        </table>
+          <!-- eREPS, LBPS, ESSPS, RFF and RBF policies -->
+         </div>
+
+
+        <div class="content" align="left" style="width: 100%;">
+        <div>
+        </div>
+        <div class="content" style="width: 100%; margin-top: 2em;">
+          <div class="title" id='mpc'><h1>Model Predictive Control Results</h1></div>
+          <!-- CEM, iCEM, LBPS, ESSPS, 16 and 1024 samples, Humanoid door hammer, white noise and smooth-->
+        </div>
+        <h2>Model Predictive Path Integral Control (Independent Gaussian Noise)</h2>
+        <table width="100%">
+          <tr>
+          <th>HumanoidStandup-v2 (32 rollouts)</th>  
+          <th>door-v0 (32 rollouts)</th>
+          <th>hammer-v0 (32 rollouts)</th>  
+          </tr>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/mppi/HumanoidStandup-v2.mp4" type="video/mp4">
+          </video>
+          </th>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/mppi/door-v0.mp4" type="video/mp4">
+          </video>
+          </th>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/mppi/hammer-v0.mp4" type="video/mp4">
+          </video>
+          </th>
+          </tr>
+        </table>
+        <h2>Lower Bound Policy Search (Squared Exponential Kernel)</h2>
+        <table width="100%">
+          <tr>
+          <th>HumanoidStandup-v2 (32 rollouts)</th>  
+          <th>door-v0 (32 rollouts)</th>
+          <th>hammer-v0 (32 rollouts)</th>  
+          </tr>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/lbps/HumanoidStandup-v2.mp4" type="video/mp4">
+          </video>
+          </th>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/lbps/door-v0.mp4" type="video/mp4">
+          </video>
+          </th>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/lbps/hammer-v0.mp4" type="video/mp4">
+          </video>
+          </th>
+          </tr>
+        </table>
+        <br>
+        <p>
+          For the feature-based policies, the cost of the finite-features approximation for MPC can be seen in the manipulation tasks, where the rewards are sparse after task completion and features do not achieve the desired zero-mean prior. They also require more samples to achieve the tasks.
+        </p>
+        <h2>Lower Bound Policy Search (Quadrature Random Fourier Features)</h2>
+        <table width="100%">
+          <tr>
+          <th>HumanoidStandup-v2 (128 rollouts)</th>  
+          <th>door-v0 (128 rollouts)</th>
+          <th>hammer-v0 (128 rollouts)</th>  
+          </tr>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/lbps-rff/HumanoidStandup-v2.mp4" type="video/mp4">
+          </video>
+          </th>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/lbps-rff/door-v0.mp4" type="video/mp4">
+          </video>
+          </th>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/lbps-rff/hammer-v0.mp4" type="video/mp4">
+          </video>
+          </th>
+          </tr>
+        </table>
+        <h2>Lower Bound Policy Search (Radial Basis Function Features)</h2>
+        <table width="100%">
+          <tr>
+          <th>HumanoidStandup-v2 (128 rollouts)</th>  
+          <th>door-v0 (128 rollouts)</th>
+          <th>hammer-v0 (128 rollouts)</th>  
+          </tr>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/lbps-rbf/HumanoidStandup-v2.mp4" type="video/mp4">
+          </video>
+          </th>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/lbps-rbf/door-v0.mp4" type="video/mp4">
+          </video>
+          </th>
+          <th>
+          <video width="300" controls>
+          <source src="results/mpc/lbps-rbf/hammer-v0.mp4" type="video/mp4">
+          </video>
+          </th>
+          </tr>
+        </table>
+    </div>
+
+<br><br><br><br>  
+
+</div></body></html>

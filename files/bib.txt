@@ -1,0 +1,6 @@
+@inproceedings{janner2022diffuser,
+  title = {Planning with Diffusion for Flexible Behavior Synthesis},
+  author = {Michael Janner and Yilun Du and Joshua Tenenbaum and Sergey Levine},
+  booktitle = {International Conference on Machine Learning},
+  year = {2022},
+}

@@ -1,0 +1,23 @@
+@font-face {
+    font-family: "Dante";
+    src: url("Dante-MT-Std-Italic.woff") format('woff');
+    font-weight: italic;
+}
+
+@font-face {
+    font-family: "Dante";
+    src: url("Dante-MT-Std-Regular.woff") format('woff');
+}
+
+@font-face {
+    font-family: "Dante";
+    src: url("Dante-MT-Std-Bold.woff") format('woff');
+    font-weight: bold;
+}
+
+
+
+@font-face {
+    font-family: "HKGrotesk";
+    src: url("HKGrotesk-Bold.woff") format('woff');
+}
