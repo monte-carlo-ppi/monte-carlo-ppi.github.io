@@ -1,6 +1,6 @@
-@inproceedings{janner2022diffuser,
-  title = {Planning with Diffusion for Flexible Behavior Synthesis},
-  author = {Michael Janner and Yilun Du and Joshua Tenenbaum and Sergey Levine},
-  booktitle = {International Conference on Machine Learning},
-  year = {2022},
+@inproceedings{Watson2022CoRL,
+  author    = {Watson, Joe and Peters, Jan},
+  booktitle = {Conference on Robot Learning},
+  title     = {Inferring Smooth Robot Control: Monte Carlo Posterior Policy Iteration with Gaussian Processes},
+  year      = {2022},
 }

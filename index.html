@@ -12,6 +12,8 @@
   <title>Inferring Smooth Control</title>
   <link rel="stylesheet" href="./files/main.css">
   <link rel="stylesheet" href="./files/font.css">
+  <link rel="stylesheet" href="./files/css/academicons.min.css"/>
+  <script src="https://kit.fontawesome.com/ade16df02c.js" crossorigin="anonymous"></script>
 
   <style>
 
@@ -59,12 +61,27 @@
         font-size: 1.2em;
     }
     p, tr, th {
-    font-family: "Dante", "Recession TwentySeventeen", "Palatino Linotype", "Book Antiqua", Palatino, FreeSerif, serif;
+    font-family: 'Crimson Text', "Recession TwentySeventeen", "Palatino Linotype", "Book Antiqua", Palatino, FreeSerif, serif;
     color: #000000;
     text-align: left;
     font-style: regular;
     font-weight: normal;
     font-size: 1.1em; 
+    }
+
+    button {
+    display:inline-block;
+    text-decoration:none;
+    color:#FF217D;
+    font-weight:bold;
+    min-width:132px;
+    min-height:37px;
+    border:1px solid black;
+    border-radius:12px;
+    text-align:center;
+    border-color: #FF217D;
+    /*background-color:gray;*/
+    margin:10px;
     }
 
     * {padding:0;margin:0;box-sizing:border-box;}
@@ -157,6 +174,40 @@
     .libx-autolink {
     }
 
+/* 
+Max width before this PARTICULAR table gets nasty
+This query will take effect for any screen smaller than 760px
+and also iPads specifically.
+*/
+@media 
+only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+  /* Force table to not be like tables anymore */
+  table, thead, tbody, th, td, tr { 
+    display: block; 
+  }
+  
+  /* Hide table headers (but not display: none;, for accessibility) */
+  thead tr { 
+    position: absolute;
+  }
+  
+  tr { 
+  }
+  
+  td { 
+    border: none;
+    position: relative;
+  }
+  
+  td:before { 
+    position: absolute;
+    white-space: nowrap;
+  }
+
+}
+
   </style>
 
   <script type="text/javascript" id="MathJax-script" async
@@ -180,8 +231,32 @@
           </h1>
           <div>
           </div>
-          <p style="text-align: center; color: #FF217D; font-size: 1.2em;">CoRL 2022 Submission</p>
+          <p style="text-align: center; color: #FF217D; font-size: 1.2em;">Conference on Robot Learning, 2022</p>
         </div>
+
+        <div style="text-align: center;">
+        <button onclick="window.location.href='https://openreview.net/forum?id=HbGgF93Ppoy;">
+        <i class="fa-solid fa-file-pdf" style="font-size: 1.1em;"></i>
+        Paper
+        </button>
+
+        <button onclick="window.location.href='https://arxiv.org/abs/2210.03512';">
+        <i class="ai ai-arxiv ai-4x" style="font-size: 1.1em;"></i>
+        Preprint
+        </button>
+
+        <button onclick="window.location.href='https://github.com/JoeMWatson/monte-carlo-posterior-policy-iteration';">
+         <i class="fa-brands fa-github" style="font-size: 1.1em;"></i>
+        Code
+        </button>
+
+        <button onclick="window.location.href='files/bib.txt';">
+        <i class="ai ai-google-scholar-square ai-3x" style="font-size: 1.1em;"></i>
+        Bibtex
+        </button>
+        
+        </div>
+
         <p>
           Monte Carlo methods are popular for Robot Learning control problems, as they allow us to optimize non-differentiable, non-convex problems and scale to high-dimensional spaces. For settings such as open-loop control and tracking tasks, they have been adopted for reforcement learning and model predictive control (MPC).
           This work takes the inference perspective to optimize smooth control priors in a principled fashion, by taking the approximate inference error into account during optimization.
